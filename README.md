@@ -1,2 +1,2 @@
 # PoleBot
-# contains code for Pole Bot Project
+contains code for Pole Bot Project
