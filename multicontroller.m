@@ -1,4 +1,4 @@
-% Author: James Wong
+Author: James Wong
 
 %
 % *********     Gamepad Control      *********
@@ -98,7 +98,7 @@ else
 end
 
 if (setBaudRate(port_num, BAUDRATE))
-    fprintf('Succeeded to change the baudrate!\n');3
+    fprintf('Succeeded to change the baudrate!\n');
 else
     unloadlibrary(lib_name);
     fprintf('Failed to change the baudrate!\n');
@@ -107,7 +107,7 @@ else
 end
 
 if (setBaudRate(port_num_2, BAUDRATE))
-    fprintf('Succeeded to change the baudrate!\n');3
+    fprintf('Succeeded to change the baudrate!\n');
 else
     unloadlibrary(lib_name);
     fprintf('Failed to change the baudrate!\n');
