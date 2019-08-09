@@ -44,8 +44,8 @@ ADDR_PRO_GOAL_VELOCITY       = 104;
 ADDR_PRO_GOAL_CURRENT        = 102;
 ADDR_PRO_PRESENT_CURRENT     = 126;
 
-vertical = [0,0];
-horizontal = [0,0];
+vertical = 0;
+horizontal = 0;
 
 PROTOCOL_VERSION            = 2.0;
 
@@ -109,7 +109,8 @@ isOn = 0;
 
 while(isOn ~=1)
     isOn = button(joy, 10);
-    
+    write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+
     
     rx = axis(joy, 3);
     ry = axis(joy, 4);
@@ -326,28 +327,26 @@ while(isOn ~=1)
     
     if button(joy, 7) == 1
         
-        for n = [6,7]
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, n, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, n, 11, 3);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, n, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
-        end
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, 11, 3);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+    
         
-        
-        write4ByteTxRx(port_num, PROTOCOL_VERSION, 1, ADDR_PRO_GOAL_POSITION, vertical(1);
-        write4ByteTxRx(port_num, PROTOCOL_VERSION, 2, ADDR_PRO_GOAL_POSITION, vertical(2);
+        write4ByteTxRx(port_num, PROTOCOL_VERSION, 1, ADDR_PRO_GOAL_POSITION, vertical);
+
     end
     
     
     if button(joy, 8) == 1
-        for n = [6,7]
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, n, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, n, 11, 3);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, n, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
-        end
+        
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, 11, 3);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 9, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+     
         
         
-        write4ByteTxRx(port_num, PROTOCOL_VERSION, 1, ADDR_PRO_GOAL_POSITION, horizontal(1);
-        write4ByteTxRx(port_num, PROTOCOL_VERSION, 2, ADDR_PRO_GOAL_POSITION, horizontal(2);
+        write4ByteTxRx(port_num, PROTOCOL_VERSION, 1, ADDR_PRO_GOAL_POSITION, horizontal);
+ 
     end
     
 end
