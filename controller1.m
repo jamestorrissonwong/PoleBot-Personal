@@ -44,6 +44,9 @@ ADDR_PRO_GOAL_VELOCITY       = 104;
 ADDR_PRO_GOAL_CURRENT        = 102;
 ADDR_PRO_PRESENT_CURRENT     = 126;
 
+vertical = 3080;
+horizontal = 4100-4096;
+
 PROTOCOL_VERSION            = 2.0;
 
 DXL_ID                      = 1;
@@ -53,7 +56,7 @@ DXL_ID_4                    = 4;
 DXL_ID_5                    = 5;
 
 BAUDRATE                    = 57600;
-DEVICENAME                  = 'COM5';
+DEVICENAME                  = 'COM7';
 
 TORQUE_ENABLE               = 1;
 TORQUE_DISABLE              = 0;
@@ -89,7 +92,7 @@ else
     input('Press any key to terminate...\n');
     return;
 end
-
+ 
 
 
 for n = [1,2,3,4,5]
@@ -100,54 +103,312 @@ for n = [1,2,3,4,5]
 end
 
 
-joy = vrjoystick(1);
+joy = vrjoystick(2);
 
 isOn = 0;
 
 while(isOn ~=1)
     isOn = button(joy, 10);
     
+    
+    rx = axis(joy, 3);
     ry = axis(joy, 4);
+    lx = axis(joy, 1);
+    ly = axis(joy, 2);
+    
+    if abs(lx) > 0.12
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, 11, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        if lx < 0
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, 10, 1);
+        elseif lx > 0
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, 10, 0);
+        end
+        
+        
+        checkPressed = axis(joy, 1)
+        
+        if abs(checkPressed) > 0.12
+            while 1
+                checkPressed = axis(joy, 1)
+                
+                if lx < 0
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, 10, 1);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                    
+                elseif lx > 0
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, 10, 0);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                    
+                end
+                
+                while abs(checkPressed) > 0.12
+                    dxl_goal_velocity_5 = 100*abs(checkPressed);
+                    write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_5);
+                    
+                    checkPressed = axis(joy, 1)
+                    
+                    if button(joy, 9) == 1
+                        write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_GOAL_VELOCITY, 0);
+                        break;
+                    end
+                    
+                    if abs(checkPressed) <= 0.12
+                        write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_GOAL_VELOCITY, 0);
+                        break;
+                    end
+                    
+                end
+                
+                if abs(checkPressed) <= 0.12
+                    write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_5, ADDR_PRO_GOAL_VELOCITY, 0);
+                    break;
+                end
+            end
+            
+        end
+        
+    end
+    
+    if abs(rx) > 0.12
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, 11, 1);
+        
+        if rx < 0
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, 10, 1);
+        elseif rx > 0
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, 10, 0);
+        end
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        
+        checkPressed = axis(joy, 3)
+        
+        if abs(checkPressed) > 0.12
+            while 1
+                checkPressed = axis(joy, 3)
+                
+                if rx < 0
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, 10, 1);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                    
+                elseif rx > 0
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, 10, 0);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                    
+                end
+                
+                while abs(checkPressed) > 0.12
+                    dxl_goal_velocity_3 = 40*abs(checkPressed);
+                    write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_3);
+                    
+                    checkPressed = axis(joy, 3)
+                    
+                    if button(joy, 9) == 1
+                        write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_GOAL_VELOCITY, 0);
+                        break;
+                    end
+                    
+                    if abs(checkPressed) <= 0.12
+                        write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_GOAL_VELOCITY, 0);
+                        break;
+                    end
+                    
+                end
+                
+                if abs(checkPressed) <= 0.12
+                    write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_3, ADDR_PRO_GOAL_VELOCITY, 0);
+                    break;
+                end
+            end
+            
+        end
+        
+    end
     
     if abs(ry) > 0.12
         
-        checkPressed = ry
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 11, 1);
         
-        while abs(checkPressed) > 0.12
-            checkPressed = axis(joy, 4)
-            
-            if checkPressed < 0
-                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
-                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 10, 1);
-                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        if ry < 0
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 10, 1);
+        elseif ry > 0
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 10, 0);
+        end
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        
+        checkPressed = axis(joy, 4)
+        
+        if abs(checkPressed) > 0.12
+            while 1
+                checkPressed = axis(joy, 4)
                 
-            elseif checkPressed > 0
-                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
-                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 10, 0);
-                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                if ry < 0
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 10, 1);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                    
+                elseif ry > 0
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, 10, 0);
+                    write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                    
+                end
                 
+                while abs(checkPressed) > 0.12
+                    dxl_goal_velocity_4 = 100*abs(checkPressed);
+                    write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_4);
+                    
+                    checkPressed = axis(joy, 4)
+                    
+                    if button(joy, 9) == 1
+                        write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, 0);
+                        break;
+                    end
+                    
+                    if abs(checkPressed) <= 0.12
+                        write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, 0);
+                        break;
+                    end
+                    
+                end
+                
+                if abs(checkPressed) <= 0.12
+                    write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, 0);
+                    break;
+                end
             end
-           
-            dxl_goal_velocity_4 = 100*abs(checkPressed);
             
             
-            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_4);
+        end
+        
+        
+    end
+    
+    
+    % Moves gripper to closed position conitunously
+    if button(joy, 6) == 1
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 11, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 10, 0);
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 11, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 10, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        checkPressed = button(joy, 6) == 1
+        
+        while checkPressed == 1
+            dxl_goal_velocity = 100;
+            dxl_goal_velocity_2 = 100;
+            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity);
+            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_2);
             
+            dxl_present_current = read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_PRESENT_CURRENT)
+            dxl_present_current_2 = read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_PRESENT_CURRENT)
             
+            checkPressed = button(joy, 6)
             
             if button(joy, 9) == 1
-                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, 0);
                 break;
             end
             
-            if abs(checkPressed) <= 0.12
-                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_4, ADDR_PRO_GOAL_VELOCITY, 0);
+            if checkPressed == 0
+                dxl_goal_velocity = 0;
+                dxl_goal_velocity_2 = 0;
+                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity);
+                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_2);
+                break;
+            end
+            
+        end
+        
+        
+        
+        % Moves gripper to open position conitunously
+    elseif button(joy, 5) == 1
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 10, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 11, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 11, 1);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 10, 0);
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        checkPressed = button(joy, 5)
+        
+        while checkPressed == 1
+            dxl_goal_velocity = 100;
+            dxl_goal_velocity_2 = 100;
+            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity);
+            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_2);
+            
+            dxl_present_current = read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_PRESENT_CURRENT)
+            dxl_present_current_2 = read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_PRESENT_CURRENT)
+            
+            checkPressed = button(joy, 5)
+            
+            if button(joy, 9) == 1
+                break;
+            end
+            
+            if checkPressed == 0
+                dxl_goal_velocity = 0;
+                dxl_goal_velocity_2 = 0;
+                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity);
+                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_2);
                 break;
             end
         end
     end
     
+    if button(joy, 7) == 1
+        
+    
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 11, 3);
+            write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, 112, 50);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        
+        
+        write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_GOAL_POSITION, vertical);
+    end
+    
+    
+    if button(joy, 8) == 1
+        
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 11, 3);
+            write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, 112, 50);
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+       
+        
+        
+        write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_GOAL_POSITION, horizontal);
+    end
+    
 end
+
 
 
 for n = [1,2,3,4,5]
