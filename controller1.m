@@ -92,7 +92,7 @@ else
     input('Press any key to terminate...\n');
     return;
 end
- 
+
 
 
 for n = [1,2,3,4,5]
@@ -383,13 +383,19 @@ while(isOn ~=1)
     
     if button(joy, 7) == 1
         
-    
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 11, 3);
-            write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, 112, 50);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_PRESENT_POSITION);
         
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 11, 3);
+        write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, 112, 50);
         
+        if (present_position < vertical) && (present_position > 2000)
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 10, 0);
+        elseif (present_position > vertical) || (present_position < 2000)
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 10, 1);
+        end
+        
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
         
         write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_GOAL_POSITION, vertical);
     end
@@ -397,12 +403,18 @@ while(isOn ~=1)
     
     if button(joy, 8) == 1
         
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 11, 3);
-            write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, 112, 50);
-            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
-       
+        present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_PRESENT_POSITION);
         
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 11, 3);
+        write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, 112, 50);
+        write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+        
+        if (present_position < horizontal) && (present_position > 2000)
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 10, 0);
+        elseif (present_position > horizontal) || (present_position < 2000)
+            write1ByteTxRx(port_num, PROTOCOL_VERSION, 3, 10, 1);
+        end
         
         write4ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_PRO_GOAL_POSITION, horizontal);
     end
