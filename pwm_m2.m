@@ -404,6 +404,29 @@ while(isOn ~=1)
         
         % Moves gripper to open position conitunously
     elseif button(joy, 5) == 1
+         if pwm1 > 475 || pwm2 > 475
+            while pwm1 > 475 || pwm2 > 475
+                pwm1 = read2ByteTxRx(port_num, PROTOCOL_VERSION, 6, 124)
+                pwm2 = read2ByteTxRx(port_num, PROTOCOL_VERSION, 7, 124)
+                
+                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 10, 0);
+                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                
+                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
+                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 10, 1);
+                write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_TORQUE_ENABLE, TORQUE_ENABLE);
+                
+                write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 100, 30);
+                write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 100, 30);
+            end
+            write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 100, 0);
+            write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 100, 0);
+            continue
+        end
+        if pwm1 > pwmlim || pwm2 > pwmlim
+            continue
+        end
         
         write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_TORQUE_ENABLE, TORQUE_DISABLE);
         write1ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 10, 1);
@@ -419,16 +442,28 @@ while(isOn ~=1)
         checkPressed = button(joy, 5)
         
         while checkPressed == 1
-            dxl_goal_velocity = 100;
-            dxl_goal_velocity_2 = 100;
-            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity);
-            write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_2);
-            
-            dxl_present_current = read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_PRESENT_CURRENT)
-            dxl_present_current_2 = read2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_PRESENT_CURRENT)
-            
+
             checkPressed = button(joy, 5)
             
+            write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 100, 100);
+            write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 100, 100);
+            
+            pwm1 = read2ByteTxRx(port_num, PROTOCOL_VERSION, 6, 124)
+            pwm2 = read2ByteTxRx(port_num, PROTOCOL_VERSION, 7, 124)
+            
+             if pwm1 > 475 || pwm2 > 475
+                dxl_goal_velocity = 0;
+                dxl_goal_velocity_2 = 0;
+                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity);
+                write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, ADDR_PRO_GOAL_VELOCITY, dxl_goal_velocity_2);
+                break;
+            end
+            
+            if pwm1 > pwmlim || pwm2 > pwmlim
+                write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, 100, pwmlim);
+                write2ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID_2, 100, pwmlim);
+                
+            end
             if button(joy, 9) == 1
                 break;
             end
